@@ -1,59 +1,70 @@
 <template>
-  <section class="container">
-    <div>
-      <logo/>
-      <h1 class="title">
-        vue_the_future
-      </h1>
-      <h2 class="subtitle">
-        Vue it Do It!
-      </h2>
-      <div class="links">
-        <a href="https://nuxtjs.org/" target="_blank" class="button--green">Documentation</a>
-        <a href="https://github.com/nuxt/nuxt.js" target="_blank" class="button--grey">GitHub</a>
-      </div>
-    </div>
+  <section id="posts">
+    <PostPreview
+    v-for="post in posts"
+    :key="post.id"
+    :title="post.title"
+    :excerpt="post.previewText"
+    :thumbnailImage="post.thumbnailUrl"
+    :id="post.id" />
   </section>
 </template>
 
 <script>
-import Logo from '~/components/Logo.vue'
-
+import PostPreview from "@/components/Blog/PostPreview";
 export default {
   components: {
-    Logo
+    PostPreview
+  },
+  asyncData(context) {
+    return context.app.$storyapi.get('cdn/stories', {
+      version: 'draft',
+      starts_with: 'blog/'
+    }).then(res => {
+      return {
+        posts: res.data.stories.map(bp => {
+        return {
+          id: bp.slug,
+          title: bp.content.title,
+          previewText: bp.content.summary,
+           thumbnailUrl: bp.content.thumbnail
+        }
+      })
+    };
+    });
   }
+  // data() {
+  //   return {
+  //     posts: [
+  //       {
+  //         title: 'Vue The Future First Post',
+  //         previewText: 'The Beggining to your future Vue',
+  //         thumbnailUrl: 'https://www.studenty.cn/wp-content/uploads/2018/01/2018011314024962.png',
+  //         id: 'vue-the-future-first'
+  //     },
+  //     {
+  //       title: 'Vue The Future Second Post',
+  //       previewText: 'The First Step to your future Vue',
+  //       thumbnailUrl:'https://d2eip9sf3oo6c2.cloudfront.net/series/square_covers/000/000/083/landscape/EGH_VueJS_Final.png',
+  //       id: 'vue-the-future-second'
+  //   }
+  //   ]
+  //   }
+  // }
 }
 </script>
 
 <style>
-.container
-{
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-.title
-{
-  font-family: "Quicksand", "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; /* 1 */
-  display: block;
-  font-weight: 300;
-  font-size: 100px;
-  color: #35495e;
-  letter-spacing: 1px;
-}
-.subtitle
-{
-  font-weight: 300;
-  font-size: 42px;
-  color: #526488;
-  word-spacing: 5px;
-  padding-bottom: 15px;
-}
-.links
-{
-  padding-top: 15px;
-}
+    #posts {
+      padding-top: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    @media(min-width: 35rem) {
+        #posts {
+          flex-direction: row;
+        }
+    }
 </style>
